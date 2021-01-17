@@ -16,8 +16,12 @@ services:
     ports:
       - 2181:2181
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+      - ZOOKEEPER_SERVER_ID=1
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+      - ZOOKEEPER_INIT_LIMIT=5
+      - ZOOKEEPER_SYNC_LIMIT=2
+      - ZOOKEEPER_SERVERS=zk-1:2888:3888
   kafka:
     image: confluentinc/cp-enterprise-kafka:5.3.1
     restart: always
@@ -34,8 +38,16 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 1
+      KAFKA_LOG_SEGMENT_BYTES: 536870912
+      KAFKA_LOG_RETENTION_BYTES: 536870912
+      KAFKA_METRIC_REPORTERS: "io.confluent.metrics.reporter.ConfluentMetricsReporter"
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka:29092"
   kafkadrop3:
     image: obsidiandynamics/kafdrop
+    restart: always
+    hostname: kafkadrop
+    container_name: kafkadrop
     depends_on:
       - kafka
     ports:
@@ -47,7 +59,9 @@ services:
       SERVER_SERVLET_CONTEXTPATH: "/"
   kafka-schema-registry:
     image: confluentinc/cp-schema-registry:5.3.1
-    hostname: kafka-schema-registry
+    restart: always
+    hostname: schema-registry
+    container_name: schema-registry
     ports:
       - "9081:9081"
     environment:
@@ -59,7 +73,9 @@ services:
       - kafka
   kafka-rest-proxy:
     image: confluentinc/cp-kafka-rest:5.3.1
-    hostname: kafka-controller-proxy
+    restart: always
+    hostname: rest-proxy
+    container_name: rest-proxy
     ports:
       - "8888:8888"
     environment:
