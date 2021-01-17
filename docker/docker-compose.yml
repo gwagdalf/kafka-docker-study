@@ -88,3 +88,22 @@ services:
       - zookeeper
       - kafka
       - kafka-schema-registry
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:5.3.1
+    restart: always
+    hostname: control-center
+    container_name: control-center
+#    networks:
+#      - confluent
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:29092
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 4
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+#      CONTROL_CENTER_CONNECT_CLUSTER: "connect:8083"
+#      CONTROL_CENTER_KSQL_URL: "http://ksqldb-server:8088"
+#      CONTROL_CENTER_KSQL_ADVERTISED_URL: "http://ksqldb-server:8088"
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://0.0.0.0:9081"
+      CONTROL_CENTER_UI_AUTOUPDATE_ENABLE: "false"
